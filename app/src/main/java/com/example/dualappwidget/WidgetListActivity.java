@@ -3,6 +3,7 @@ package com.example.dualappwidget;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -75,6 +76,38 @@ public class WidgetListActivity extends AppCompatActivity {
             modeView.setText(R.string.mode_add);
             hintTitle.setText(R.string.add_hint_title);
             hintBody.setText(R.string.add_hint_body);
+        }
+
+        TextView identityView = findViewById(R.id.manager_identity);
+        identityView.setText(readInstalledIdentity());
+    }
+
+    /**
+     * 读取【当前已安装 APK】里 receiver 的真实 meta-data。
+     *
+     * 这里不用 BuildConfig —— 那是编译期写死的，只能说明「这个包是哪个 flavor 编出来的」，
+     * 不能说明「手机上现在装的到底是哪个包」。覆盖安装没生效时两者会不一致，
+     * 而桌面判定能否堆叠看的正是这份清单数据，所以这里直接读真身：
+     *   - miuiWidget=true  → 桌面才认它是米系小部件、才放行堆叠
+     *   - exported=true     → 桌面（别的应用）才能用 PackageManager 读到上面那条 meta-data
+     *   - miuiWidgetRefresh → 曝光刷新配置（顺带展示）
+     */
+    private String readInstalledIdentity() {
+        try {
+            ActivityInfo info = getPackageManager()
+                    .getReceiverInfo(provider, PackageManager.GET_META_DATA);
+            Bundle meta = info.metaData;
+            boolean miuiWidget = meta != null && meta.getBoolean("miuiWidget", false);
+            String refresh = (meta == null) ? null : meta.getString("miuiWidgetRefresh");
+            Log.i(TAG, "installed identity: miuiWidget=" + miuiWidget
+                    + " exported=" + info.exported + " refresh=" + refresh);
+            return getString(R.string.mode_identity,
+                    miuiWidget ? "是" : "否",
+                    info.exported ? "是" : "否",
+                    TextUtils.isEmpty(refresh) ? "无" : refresh);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.w(TAG, "readInstalledIdentity failed", e);
+            return getString(R.string.mode_identity_unknown);
         }
     }
 

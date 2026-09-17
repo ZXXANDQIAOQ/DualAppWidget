@@ -49,6 +49,9 @@
     <string name="action_got_it">知道了</string>
 
     <!-- 版本说明（同一个包名出两个 APK，覆盖安装切换） -->
+    <string name="mode_identity">当前 APK 清单里的真实身份：米系标识 %1$s　｜　exported %2$s　｜　曝光刷新 %3$s\n（桌面判定能不能堆叠看的就是这三项；和上面不一样说明覆盖安装没换成功）</string>
+    <string name="mode_identity_unknown">当前 APK 清单里的真实身份：读取失败</string>
+
     <string name="mode_add">当前：可添加版\n桌面小部件面板里能找到它，用它新建实例；这个版本还不能堆叠。</string>
     <string name="mode_stack">当前：可堆叠版\n实例可以拖到一起堆叠；这个版本在桌面面板里没有入口，要新建实例请先换回可添加版。</string>
     <string name="stack_need_add_title">新建实例要先换回可添加版</string>
@@ -58,6 +61,6 @@
     <string name="add_hint_body">在桌面长按空白处 → 添加小部件 → 支持小部件应用「全部」→ 选「双应用快捷启动」，反复添加几次就是几个实例；把两个实例拖到一起还能叠成一组。</string>
 
     <string name="stack_hint_title">想加更多实例 / 想堆叠？</string>
-    <string name="stack_hint_body">当前是可堆叠版：桌面上已有的实例可以拖到一起叠成一组。\n\n要新建实例，请先覆盖安装「可添加版」（DualAppWidget-add-debug.apk）——面板里才有条目；加完再覆盖安装回可堆叠版，实例和配置都不会丢。</string>
+    <string name="stack_hint_body">当前是可堆叠版：桌面上已有的实例可以拖到一起叠成一组。\n\n要新建实例，请先覆盖安装「可添加版」（DualAppWidget-add-debug.apk）——面板里才有条目；加完再覆盖安装回可堆叠版，实例和配置都不会丢。\n\n仓库 tools/ 里有两个 .bat（switch-to-add / switch-to-stack），手机插上数据线双击就能自动完成覆盖安装 + 刷新桌面，比手动装稳。</string>
 
 </resources>

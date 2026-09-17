@@ -46,6 +46,25 @@
             android:paddingBottom="6dp"
             android:textColor="#FFFFFFFF"
             android:textSize="12sp" />
+
+        <!--
+            当前 APK 清单里【真实】的小部件身份。
+            不是 BuildConfig 推断的，而是运行时用 PackageManager 读自己做出来的 receiver，
+            和桌面读的是同一份数据 —— 用来判断「覆盖安装到底有没有换成功」。
+        -->
+        <TextView
+            android:id="@+id/manager_identity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="#22FFFFFF"
+            android:lineSpacingExtra="2dp"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:textColor="#CCFFFFFF"
+            android:textSize="11sp" />
     </LinearLayout>
 
     <!-- 实例列表 -->

@@ -74,12 +74,27 @@ adb install -r prebuilt/DualAppWidget-add.apk     # 或 DualAppWidget-stack.apk
 - 覆盖安装不会丢配置、不会丢桌面上的实例。因为小部件身份是桌面每次用 `PackageManager`
   **实时读当前安装包清单**判断的，不是记录在实例里的（已实测：无标识时期建的实例，
   换成带标识版本重装后直接就能叠）；
-- 装完之后建议重启一次手机，让桌面的小部件列表缓存刷新。
+- **装完必须让桌面重新读一次清单**，否则身份还是旧的。最稳的做法是用 `tools/` 里的脚本，
+  它会「覆盖安装 + 校验已装版本 + 重启桌面」一条龙做完：
+
+  ```bat
+  tools\switch-to-add.bat        :: 切到可添加版（去加实例）
+  tools\switch-to-stack.bat      :: 切到可堆叠版（去堆叠）
+  ```
+
+  ```bash
+  ./tools/switch.sh add          # 或 stack / status
+  ```
+
+  手动装也行，但装完要自己执行一次 `adb shell am force-stop com.miui.home`
+  （或直接重启手机），不然桌面的小部件身份缓存不会刷新。
 
 典型用法：用可添加版把实例都加好 → 换成可堆叠版 → 把实例拖到一起叠成一组
 → 以后想再加实例，换回可添加版，加完再换回来。
 
-App 首页顶部会明示当前装的是哪个版本，按钮也会按版本给对应提示。
+App 首页顶部会显示两块信息：一块是**当前是哪个版本**，另一块是**运行时用
+`PackageManager` 读出来的真实清单身份**（`miuiWidget` / `exported` / 曝光刷新）。
+两块不一致就说明覆盖安装没换成功，一眼能看出来，不用猜。
 
 ---
 
@@ -106,6 +121,16 @@ app/
     │       └── xml-v31/dual_app_widget_info.xml     # 同上，带 targetCell 尺寸（Android 12+）
     ├── addable/AndroidManifest.xml          # 普通身份的小部件 receiver（面板可见）
     └── stackable/AndroidManifest.xml        # 米系身份的小部件 receiver（miuiWidget=true）
+
+tools/
+├── switch-to-add.bat                        # 双击：覆盖安装可添加版 + 刷新桌面（Windows）
+├── switch-to-stack.bat                      # 双击：覆盖安装可堆叠版 + 刷新桌面（Windows）
+└── switch.sh                                # 同上，bash：./tools/switch.sh {add|stack|status}
+
+prebuilt/
+├── DualAppWidget-add.apk                    # 可添加版（与源码一致）
+├── DualAppWidget-stack.apk                  # 可堆叠版（与源码一致）
+└── README.md
 ```
 
 ---
