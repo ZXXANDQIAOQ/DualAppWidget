@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 未配置时显示的占位图标：虚框 + 加号 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M8,8 L40,8 L40,40 L8,40 Z"
+        android:strokeColor="#66000000"
+        android:strokeWidth="2" />
+
+    <path
+        android:fillColor="#66000000"
+        android:pathData="M22,14 L26,14 L26,22 L34,22 L34,26 L26,26 L26,34 L22,34 L22,26 L14,26 L14,22 L22,22 Z" />
+</vector>

@@ -1,0 +1,100 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "构建 APK",
+      "detail": "gradlew assembleDebug —— 产物在 app/build/outputs/apk/debug/app-debug.apk",
+      "type": "shell",
+      "command": "gradlew.bat assembleDebug",
+      "windows": {
+        "command": "gradlew.bat assembleDebug"
+      },
+      "linux": {
+        "command": "./gradlew assembleDebug"
+      },
+      "osx": {
+        "command": "./gradlew assembleDebug"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "cmd.exe",
+          "args": [
+            "/d",
+            "/c"
+          ]
+        },
+        "env": {
+          "JAVA_HOME": "D:\\App\\Jdk17\\jdk-17.0.13+11",
+          "ANDROID_HOME": "D:\\App\\Android\\Sdk"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "清理构建产物 (clean)",
+      "type": "shell",
+      "command": "gradlew.bat clean",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "cmd.exe",
+          "args": [
+            "/d",
+            "/c"
+          ]
+        },
+        "env": {
+          "JAVA_HOME": "D:\\App\\Jdk17\\jdk-17.0.13+11",
+          "ANDROID_HOME": "D:\\App\\Android\\Sdk"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "安装到手机 (installDebug)",
+      "detail": "需要手机已开启 USB 调试并连接",
+      "type": "shell",
+      "command": "gradlew.bat installDebug",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "cmd.exe",
+          "args": [
+            "/d",
+            "/c"
+          ]
+        },
+        "env": {
+          "JAVA_HOME": "D:\\App\\Jdk17\\jdk-17.0.13+11",
+          "ANDROID_HOME": "D:\\App\\Android\\Sdk",
+          "PATH": "D:\\App\\Android\\Sdk\\platform-tools;${env:PATH}"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "重新生成 Gradle Wrapper",
+      "type": "shell",
+      "command": "gradlew.bat wrapper",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "cmd.exe",
+          "args": [
+            "/d",
+            "/c"
+          ]
+        },
+        "env": {
+          "JAVA_HOME": "D:\\App\\Jdk17\\jdk-17.0.13+11"
+        }
+      },
+      "problemMatcher": []
+    }
+  ]
+}

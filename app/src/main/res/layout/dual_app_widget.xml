@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    小部件布局：上下两个 ImageView，各自独立可点击。
+    注意：RemoteViews 支持的布局/控件有限，这里只能用 LinearLayout + ImageView/TextView。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="6dp">
+
+    <!-- 上半部分：点击启动第一个 App -->
+    <ImageView
+        android:id="@+id/widget_top"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/slot_bg"
+        android:clickable="true"
+        android:contentDescription="@string/slot_top_desc"
+        android:focusable="true"
+        android:padding="4dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_placeholder" />
+
+    <!--
+        分隔线：这里必须用 TextView 而不是 <View>。
+        RemoteViews 在宿主进程 inflate 布局时会用 LayoutInflater.Filter 过滤，
+        只放行带 @RemoteViews.RemoteView 注解的类；android.view.View 没有这个注解，
+        用 <View> 会让桌面直接报“载入窗口小部件时出现问题”。
+    -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="#1F000000" />
+
+    <!-- 下半部分：点击启动第二个 App -->
+    <ImageView
+        android:id="@+id/widget_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/slot_bg"
+        android:clickable="true"
+        android:contentDescription="@string/slot_bottom_desc"
+        android:focusable="true"
+        android:padding="4dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_placeholder" />
+
+    <!-- 未配置时的提示，默认隐藏（宽度只有 1 格，限制单行） -->
+    <TextView
+        android:id="@+id/widget_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingTop="4dp"
+        android:text="@string/widget_unconfigured_hint"
+        android:textColor="#8A000000"
+        android:textSize="10sp"
+        android:visibility="gone" />
+
+</LinearLayout>

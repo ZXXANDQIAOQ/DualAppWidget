@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 配置界面里两个槽位卡片的背景：选中态描边变主色 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#146750A4" />
+            <corners android:radius="14dp" />
+            <stroke
+                android:width="2dp"
+                android:color="@color/primary" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFFFF" />
+            <corners android:radius="14dp" />
+            <stroke
+                android:width="1dp"
+                android:color="#22000000" />
+        </shape>
+    </item>
+</selector>

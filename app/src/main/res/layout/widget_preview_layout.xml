@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android 12+ 桌面选择器里的小部件预览（previewLayout）。
+    桌面会在自己的进程里 inflate 这个布局，所以只能用 RemoteViews 白名单内的控件：
+    LinearLayout / ImageView / TextView，绝对不能出现 <View>。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="6dp">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/slot_bg"
+        android:contentDescription="@string/slot_top_desc"
+        android:padding="4dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_placeholder" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="#1F000000" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/slot_bg"
+        android:contentDescription="@string/slot_bottom_desc"
+        android:padding="4dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_placeholder" />
+
+</LinearLayout>

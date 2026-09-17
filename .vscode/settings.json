@@ -1,0 +1,26 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.gradle.enabled": true,
+  "java.import.gradle.wrapper.enabled": true,
+  "java.import.gradle.java.home": "D:\\App\\Jdk17\\jdk-17.0.13+11",
+  "java.jdt.ls.java.home": "D:\\App\\Jdk17\\jdk-17.0.13+11",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-17",
+      "path": "D:\\App\\Jdk17\\jdk-17.0.13+11",
+      "default": true
+    }
+  ],
+  "java.import.exclusions": [
+    "**/build/**",
+    "**/.gradle/**"
+  ],
+  "java.errors.incompleteClasspath.severity": "warning",
+  "gradle.nestedProjects": false,
+  "files.exclude": {
+    "**/.gradle": true
+  },
+  "files.associations": {
+    "*.gradle": "groovy"
+  }
+}

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        Android 11 (API 30) 起，默认只能“看到”自己的应用。
+        为了让配置界面能列出所有已安装应用、并且 getLaunchIntentForPackage 能拿到启动 Intent，
+        这里申请 QUERY_ALL_PACKAGES；同时用 <queries> 声明 MAIN/LAUNCHER 意图查询。
+        个人自用，不上架商店，因此不需要考虑 Google Play 的权限审核限制。
+    -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <!--
+            桌面小部件接收器。
+
+            ⚠️ 下面的声明是照抄澎湃 OS 4 自带的米系小部件（真机抓的
+            com.miui.player 的 MiuiHomeSmallWidget、com.mipay.wallet 的 VideoWidget），
+            少一条桌面就把我们当普通安卓小部件，拖拽堆叠会被直接拒：
+              WidgetStackDropHandler can not stack: dragItem is not miui widget
+
+            1) android:exported="true" 必须为 true ——
+               桌面的 is_miui_widget 检查是用 PackageManager 去读本 receiver 的 meta-data，
+               非 exported 的组件在别的应用里根本查不到，桌面只会打
+               "is_miui_widget: no meta data found for provider"，直接判非米系。
+            2) intent-filter 里 android. 与 miui. 两条 APPWIDGET_UPDATE 广播都要有，
+               这是米系小部件在系统里登记的方式。
+            3) meta-data miuiWidget=true 是米系小部件的身份标识（堆叠放行的钥匙）。
+            4) miuiWidgetRefresh / miuiWidgetRefreshMinInterval 是曝光刷新配置。
+            5) android:process=":widgetProvider" 独立进程（米系小部件都这么放）。
+
+            实测（澎湃 OS 4.0 V816，2026-09-17）：补齐上面 5 条之后，
+            两个实例真的能叠成一组（桌面日志 stackWidget done: widgetCount=2）。
+        -->
+        <receiver
+            android:name=".DualAppWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_label"
+            android:process=":widgetProvider">
+            <intent-filter>
+                <!-- 系统定时/常规刷新 -->
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- 米系小部件的刷新广播（桌面据此把 provider 认成米系小部件） -->
+                <action android:name="miui.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/dual_app_widget_info" />
+
+            <!-- 米系小部件身份标识 -->
+            <meta-data
+                android:name="miuiWidget"
+                android:value="true" />
+
+            <!-- 曝光刷新：页面滑到小部件时刷新一次 -->
+            <meta-data
+                android:name="miuiWidgetRefresh"
+                android:value="exposure" />
+            <meta-data
+                android:name="miuiWidgetRefreshMinInterval"
+                android:value="60000" />
+        </receiver>
+
+        <!--
+            实例管理页：应用启动入口。
+            桌面上可以有多个小部件实例，这里统一列出并逐个配置。
+        -->
+        <activity
+            android:name=".WidgetListActivity"
+            android:exported="true"
+            android:label="@string/manager_title"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+            配置界面：
+            1) 添加小部件时由桌面通过 APPWIDGET_CONFIGURE 拉起（必须 exported=true，因为是别的应用启动它）
+            2) 长按小部件选「编辑」（widgetFeatures=reconfigurable）时也走这里
+            3) 管理页点「编辑」也走这里
+            不能用 singleTop：连续配置不同实例时会被复用导致 widgetId 串掉
+        -->
+        <activity
+            android:name=".ConfigActivity"
+            android:exported="true"
+            android:label="@string/config_title"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

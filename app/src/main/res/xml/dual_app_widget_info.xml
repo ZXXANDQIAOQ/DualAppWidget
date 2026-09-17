@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    小部件尺寸：宽 1 格 × 高 2 格。
+
+    这是给 Android 11（API 30）及以下用的版本，只认 minWidth / minHeight，
+    按旧公式 (70n - 30)：宽 1 格 = 40dp，高 2 格 = 110dp。
+
+    Android 12+ 精确指定格子数的版本在 res/xml-v31/ 里，系统按 SDK 版本自动挑那一份。
+    必须这样分目录的原因：AAPT2 在 link 阶段会静默丢掉「比 minSdk 新的 android: 属性」，
+    minSdk = 21 时，写在 base 目录里的 targetCellWidth/targetCellHeight/widgetFeatures 会被直接删掉，
+    放进 -v31 目录才会保留（-v31 目录的有效 minSdk 按 31 算）。
+
+    resizeMode / minResizeWidth / minResizeHeight 必须写在 base 里：
+    它们是 API 14 的属性，任何版本都能识别；不声明的话 resizeMode 默认是 none，
+    桌面会把小部件当成「固定尺寸、不可缩放」——这是新的桌面堆叠/折叠功能最常见的拒绝原因。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.example.dualappwidget.ConfigActivity"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/dual_app_widget"
+    android:minHeight="110dp"
+    android:minResizeHeight="55dp"
+    android:minResizeWidth="40dp"
+    android:minWidth="40dp"
+    android:previewImage="@drawable/widget_preview"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

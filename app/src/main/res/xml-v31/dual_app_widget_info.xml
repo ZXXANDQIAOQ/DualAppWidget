@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android 12（API 31）及以上使用的小部件元数据。
+    加了 targetCellWidth / targetCellHeight，桌面会直接按「1 列 × 2 行」摆放，
+    不再靠 minWidth / minHeight 去猜，尺寸最准。
+
+    minWidth / minHeight 一并保留，作为属性不可用时的兜底。
+
+    resizeMode：必须显式声明为 horizontal|vertical。
+    不声明时 AppWidgetProviderInfo.resizeMode 是 RESIZE_NONE，桌面（含澎湃 OS 的
+    小组件堆叠/折叠）会把这个小部件当成不可缩放的固定块，堆叠时没法把它拉进
+    统一尺寸的堆叠位，于是直接不给叠。
+
+    previewLayout：Android 12+ 的桌面（新的小部件面板）会在选择器里直接渲染这个布局，
+    只有提供它的第三方小部件才会被当成「已适配」的组件，而不是退回到老旧的「安卓小部件」入口。
+
+    widgetFeatures="reconfigurable"：长按小部件 → 编辑，可以重新打开配置界面改上下两个 App。
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.example.dualappwidget.ConfigActivity"
+    android:description="@string/widget_description"
+    android:initialLayout="@layout/dual_app_widget"
+    android:minHeight="110dp"
+    android:minResizeHeight="55dp"
+    android:minResizeWidth="40dp"
+    android:minWidth="40dp"
+    android:previewImage="@drawable/widget_preview"
+    android:previewLayout="@layout/widget_preview_layout"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="2"
+    android:targetCellWidth="1"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable" />
