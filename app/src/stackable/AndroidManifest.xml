@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    【可堆叠版 / flavor: stack】
+
+    米系小部件身份 —— 声明完全照抄澎湃 OS 4 自带的米系小部件
+    （真机抓的 com.miui.player 的 MiuiHomeSmallWidget、com.mipay.wallet 的 VideoWidget），
+    少任意一条，桌面拖拽堆叠时都会被拒：
+        WidgetStackDropHandler can not stack: dragItem is not miui widget
+
+    1) android:exported="true" 必须为 true ——
+       桌面的 is_miui_widget 检查是用 PackageManager 去读本 receiver 的 meta-data，
+       非 exported 的组件在别的应用里根本查不到，桌面只会打
+       "is_miui_widget: no meta data found for provider"，直接判非米系。
+    2) intent-filter 里 android. 与 miui. 两条 APPWIDGET_UPDATE 广播都要有。
+    3) meta-data miuiWidget=true 是米系小部件的身份标识（堆叠放行的钥匙）。
+    4) miuiWidgetRefresh / miuiWidgetRefreshMinInterval 是曝光刷新配置。
+    5) android:process=":widgetProvider" 独立进程（米系小部件都这么放）。
+
+    ⚠️ 代价：带上这个身份后，桌面的小部件面板里就没有本应用的条目了
+    （米系小部件的列表条目由小米服务端下发，本地自建 APK 提供不了那份数据），
+    所以要新建实例时得换回 add 版安装。
+    实测（澎湃 OS 4.0 V816，2026-09-17）：补齐上面 5 条之后，
+    两个实例真的能叠成一组（桌面日志 stackWidget done: widgetCount=2）。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+
+        <receiver
+            android:name=".DualAppWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_label"
+            android:process=":widgetProvider">
+            <intent-filter>
+                <!-- 系统定时/常规刷新 -->
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- 米系小部件的刷新广播（桌面据此把 provider 认成米系小部件） -->
+                <action android:name="miui.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/dual_app_widget_info" />
+
+            <!-- 米系小部件身份标识 -->
+            <meta-data
+                android:name="miuiWidget"
+                android:value="true" />
+
+            <!-- 曝光刷新：页面滑到小部件时刷新一次 -->
+            <meta-data
+                android:name="miuiWidgetRefresh"
+                android:value="exposure" />
+            <meta-data
+                android:name="miuiWidgetRefreshMinInterval"
+                android:value="60000" />
+        </receiver>
+
+    </application>
+
+</manifest>

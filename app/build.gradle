@@ -13,6 +13,44 @@ android {
         versionName "1.0"
     }
 
+    /*
+        两种身份，同一份代码，出两个 APK（包名、签名完全相同，可以互相覆盖安装）：
+
+        - add   ：不加米系标识。桌面小部件面板里能找到它，用来「新建实例」。
+        - stack ：补齐米系小部件声明（miuiWidget=true 等）。
+                  桌面据此把它当米系小部件，两个实例可以拖到一起堆叠；
+                  代价是它不会出现在小部件面板的列表里。
+
+        小部件身份是桌面每次用 PackageManager 实时读当前安装包清单判断的，
+        不是记录在实例里的 —— 所以两个包互相覆盖安装时，
+        桌面上的实例和 App 里的配置都不会丢。
+    */
+    flavorDimensions "mode"
+    productFlavors {
+        // 名字不能叫 add —— 会和 Gradle 的 configurations.add() 撞名
+        addable {
+            dimension "mode"
+            versionNameSuffix "-add"
+            buildConfigField "boolean", "MIUI_STACK_MODE", "false"
+        }
+        stackable {
+            dimension "mode"
+            versionNameSuffix "-stack"
+            buildConfigField "boolean", "MIUI_STACK_MODE", "true"
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    applicationVariants.all { variant ->
+        def mode = variant.productFlavors[0].name == 'addable' ? 'add' : 'stack'
+        variant.outputs.all {
+            outputFileName = "DualAppWidget-${mode}-${variant.buildType.name}.apk"
+        }
+    }
+
     buildTypes {
         debug {
             minifyEnabled false

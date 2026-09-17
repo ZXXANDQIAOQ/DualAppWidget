@@ -31,6 +31,21 @@
             android:text="@string/manager_subtitle"
             android:textColor="#CCFFFFFF"
             android:textSize="12sp" />
+
+        <!-- 当前装的是哪个版本（可添加版 / 可堆叠版），代码里按 BuildConfig 填 -->
+        <TextView
+            android:id="@+id/manager_mode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#33FFFFFF"
+            android:lineSpacingExtra="2dp"
+            android:paddingStart="10dp"
+            android:paddingTop="6dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="6dp"
+            android:textColor="#FFFFFFFF"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <!-- 实例列表 -->
@@ -75,6 +90,7 @@
                 android:padding="14dp">
 
                 <TextView
+                    android:id="@+id/manager_hint_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/add_hint_title"
@@ -83,6 +99,7 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/manager_hint_body"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
@@ -90,6 +107,7 @@
                     android:text="@string/add_hint_body"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
+
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

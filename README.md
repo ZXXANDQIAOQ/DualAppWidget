@@ -34,42 +34,78 @@
 sdk.dir=D\:\\App\\Android\\Sdk
 ```
 
-构建：
+构建（会出两个 APK，见下一节）：
 
 ```bash
-./gradlew assembleDebug
+./gradlew assembleAddableDebug assembleStackableDebug
 ```
 
-产物：`app/build/outputs/apk/debug/app-debug.apk`
+产物：
 
-仓库里的 `prebuilt/` 目录另存了一份可直接安装的调试包（与当前源码一致）。
+| 文件 | 版本 |
+| --- | --- |
+| `app/build/outputs/apk/addable/debug/DualAppWidget-add-debug.apk` | 可添加版 |
+| `app/build/outputs/apk/stackable/debug/DualAppWidget-stack-debug.apk` | 可堆叠版 |
+
+仓库里的 `prebuilt/` 目录另存了这两个包（与当前源码一致），可直接安装。
 
 安装：
 
 ```bash
-adb install -r prebuilt/DualAppWidget-debug.apk
+adb install -r prebuilt/DualAppWidget-add.apk     # 或 DualAppWidget-stack.apk
 ```
+
+---
+
+## 两个版本：可添加版 / 可堆叠版
+
+澎湃 OS 4 上，「能在小部件面板里找到并添加」和「能堆叠」这两件事**互斥**：
+
+| | 可添加版 `add` | 可堆叠版 `stack` |
+| --- | --- | --- |
+| 桌面小部件面板里能找到 | ✅ | ❌（米系小部件的条目由小米服务端下发，本地包给不出） |
+| 新建实例 | ✅ | ❌ |
+| 两个实例拖到一起堆叠 | ❌ | ✅ |
+
+所以同一个包名出两个 APK，靠**覆盖安装**来回切换。关键点：
+
+- 两个 APK 包名、签名、versionCode 完全相同，**互相覆盖安装即可切换**；
+- **不要卸载**——卸载会清掉 App 配置，桌面上的小部件实例也会一起消失；
+- 覆盖安装不会丢配置、不会丢桌面上的实例。因为小部件身份是桌面每次用 `PackageManager`
+  **实时读当前安装包清单**判断的，不是记录在实例里的（已实测：无标识时期建的实例，
+  换成带标识版本重装后直接就能叠）；
+- 装完之后建议重启一次手机，让桌面的小部件列表缓存刷新。
+
+典型用法：用可添加版把实例都加好 → 换成可堆叠版 → 把实例拖到一起叠成一组
+→ 以后想再加实例，换回可添加版，加完再换回来。
+
+App 首页顶部会明示当前装的是哪个版本，按钮也会按版本给对应提示。
 
 ---
 
 ## 目录结构
 
 ```
-app/src/main/
-├── AndroidManifest.xml                      # 小部件 receiver（米系声明，见下）+ 配置页 + 管理页
-├── java/com/example/dualappwidget/
-│   ├── DualAppWidgetProvider.java           # AppWidgetProvider：onUpdate 里拼 RemoteViews、绑 PendingIntent
-│   ├── ConfigActivity.java                  # 配置页：列已装应用，选上半 / 下半
-│   ├── WidgetListActivity.java              # 管理页：列出所有实例 + 添加新实例入口
-│   ├── AppListAdapter.java                  # 应用列表适配器
-│   ├── AppInfo.java                         # 已装应用信息（包名 / 名称 / 图标）
-│   ├── ImageUtils.java                      # 图标缩放、圆角等处理
-│   └── Prefs.java                           # SharedPreferences 封装
-└── res/
-    ├── layout/                              # 小部件 / 配置页 / 管理页 / 预览图
-    ├── drawable/                            # 卡片、槽位、占位图等
-    ├── xml/dual_app_widget_info.xml         # 小部件元信息（Android 11 及以下）
-    └── xml-v31/dual_app_widget_info.xml     # 同上，带 targetCell 尺寸（Android 12+）
+app/
+├── build.gradle                             # 两种 flavor（addable / stackable），各自出 APK
+└── src/
+    ├── main/
+    │   ├── AndroidManifest.xml              # 权限 / queries / 两个 Activity（receicver 见下）
+    │   ├── java/com/example/dualappwidget/
+    │   │   ├── DualAppWidgetProvider.java   # AppWidgetProvider：onUpdate 里拼 RemoteViews、绑 PendingIntent
+    │   │   ├── ConfigActivity.java          # 配置页：列已装应用，选上半 / 下半
+    │   │   ├── WidgetListActivity.java      # 管理页：列出所有实例 + 添加新实例入口 + 版本提示
+    │   │   ├── AppListAdapter.java          # 应用列表适配器
+    │   │   ├── AppInfo.java                 # 已装应用信息（包名 / 名称 / 图标）
+    │   │   ├── ImageUtils.java              # 图标缩放、圆角等处理
+    │   │   └── Prefs.java                   # SharedPreferences 封装
+    │   └── res/
+    │       ├── layout/                      # 小部件 / 配置页 / 管理页 / 预览图
+    │       ├── drawable/                    # 卡片、槽位、占位图等
+    │       ├── xml/dual_app_widget_info.xml         # 小部件元信息（Android 11 及以下）
+    │       └── xml-v31/dual_app_widget_info.xml     # 同上，带 targetCell 尺寸（Android 12+）
+    ├── addable/AndroidManifest.xml          # 普通身份的小部件 receiver（面板可见）
+    └── stackable/AndroidManifest.xml        # 米系身份的小部件 receiver（miuiWidget=true）
 ```
 
 ---
@@ -133,6 +169,9 @@ WidgetStackDropHandler can not stack: dragItem is not miui widget
 
 补齐之后，两个实例可以真的叠成一组（桌面日志：`stackWidget done: widgetCount=2`）。
 
+> 这套声明放在 `app/src/stackable/AndroidManifest.xml`；普通身份那份在 `app/src/addable/`。
+> 两份的差别只有这个 receiver。
+
 **几个排查要点：**
 
 - `exported="false"` 时桌面读不到 meta-data，日志会打
@@ -158,9 +197,10 @@ WidgetStackDropHandler can not stack: dragItem is not miui widget
 - **添加新实例必须手动**：澎湃 OS 拒绝第三方应用发起的 `requestPinAppWidget`
   （桌面日志 `setup_widget abort: permission denied`），管理页里的按钮只能给出手动步骤指引，
   没法真正一键添加。手动加一次桌面就有入口，重复添加就是多实例。
-- **`miuiWidget` 身份是双刃剑**：带上它才能堆叠；但米系小部件在小部件面板里的条目由小米服务端下发，
-  本地自建 APK 给不出那份数据，所以它不会出现在「米系小部件」分类列表里。
-  用「支持小部件应用 → 全部」或桌面已有实例重新配置即可。
+- **`miuiWidget` 身份是双刃剑（已用「两个 APK」绕过）**：带上它才能堆叠；但米系小部件在小部件面板里的
+  条目由小米服务端下发，本地自建 APK 给不出那份数据，所以它不会出现在面板的列表里。
+  结论就是**「能加」和「能叠」互斥**，用 `addable` / `stackable` 两个包覆盖安装切换来兼顾。
+- 切换版本后如果堆叠 / 添加行为没变，**重启一次手机**再看（桌面有小部件列表缓存）。
 - 请勿在未授权的情况下用本工程的 `QUERY_ALL_PACKAGES` 权限上架商店（本项目为个人自用）。
 
 ---

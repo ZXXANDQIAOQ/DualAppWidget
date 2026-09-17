@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    【可添加版 / flavor: add】
+
+    普通 Android AppWidget 身份：不带 miuiWidget 标识。
+    桌面小部件面板里能找到它、能正常添加实例，但拖拽时会被桌面按
+    "can not stack: dragItem is not miui widget" 拒绝，不能堆叠。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+
+        <receiver
+            android:name=".DualAppWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/dual_app_widget_info" />
+        </receiver>
+
+    </application>
+
+</manifest>

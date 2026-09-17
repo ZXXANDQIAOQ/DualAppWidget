@@ -54,6 +54,28 @@ public class WidgetListActivity extends AppCompatActivity {
         container = findViewById(R.id.instance_container);
         emptyView = findViewById(R.id.manager_empty);
         findViewById(R.id.btn_add_instance).setOnClickListener(v -> requestNewInstance());
+
+        applyModeUi();
+    }
+
+    /**
+     * 同一个包名有两个 APK（可添加版 / 可堆叠版），装哪个决定了这个页面该怎么引导用户。
+     * 用 BuildConfig.MIUI_STACK_MODE 区分，它由 build.gradle 的 flavor 注入。
+     */
+    private void applyModeUi() {
+        TextView modeView = findViewById(R.id.manager_mode);
+        TextView hintTitle = findViewById(R.id.manager_hint_title);
+        TextView hintBody = findViewById(R.id.manager_hint_body);
+
+        if (BuildConfig.MIUI_STACK_MODE) {
+            modeView.setText(R.string.mode_stack);
+            hintTitle.setText(R.string.stack_hint_title);
+            hintBody.setText(R.string.stack_hint_body);
+        } else {
+            modeView.setText(R.string.mode_add);
+            hintTitle.setText(R.string.add_hint_title);
+            hintBody.setText(R.string.add_hint_body);
+        }
     }
 
     @Override
@@ -186,6 +208,17 @@ public class WidgetListActivity extends AppCompatActivity {
      * 系统标准 pin 接口在本机是条死路，所以这里直接给出可照做的手动步骤。
      */
     private void requestNewInstance() {
+        // 可堆叠版在桌面面板里没有条目（米系小部件的列表由小米服务端下发），
+        // 直接说清楚要换回可添加版，别让用户白找。
+        if (BuildConfig.MIUI_STACK_MODE) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.stack_need_add_title)
+                    .setMessage(R.string.stack_need_add_body)
+                    .setPositiveButton(R.string.action_got_it, null)
+                    .show();
+            return;
+        }
+
         boolean requested = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 && appWidgetManager.isRequestPinAppWidgetSupported()) {

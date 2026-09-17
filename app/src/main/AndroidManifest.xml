@@ -27,55 +27,14 @@
         android:theme="@style/AppTheme">
 
         <!--
-            桌面小部件接收器。
+            桌面小部件的 <receiver> 不在这里声明 —— 它按「身份」分成两份，放在各自的 flavor 清单里：
 
-            ⚠️ 下面的声明是照抄澎湃 OS 4 自带的米系小部件（真机抓的
-            com.miui.player 的 MiuiHomeSmallWidget、com.mipay.wallet 的 VideoWidget），
-            少一条桌面就把我们当普通安卓小部件，拖拽堆叠会被直接拒：
-              WidgetStackDropHandler can not stack: dragItem is not miui widget
+            - app/src/add/AndroidManifest.xml    普通 AppWidget 身份（面板可见，用来新建实例）
+            - app/src/stack/AndroidManifest.xml  米系小部件身份（miuiWidget=true，可堆叠，面板不可见）
 
-            1) android:exported="true" 必须为 true ——
-               桌面的 is_miui_widget 检查是用 PackageManager 去读本 receiver 的 meta-data，
-               非 exported 的组件在别的应用里根本查不到，桌面只会打
-               "is_miui_widget: no meta data found for provider"，直接判非米系。
-            2) intent-filter 里 android. 与 miui. 两条 APPWIDGET_UPDATE 广播都要有，
-               这是米系小部件在系统里登记的方式。
-            3) meta-data miuiWidget=true 是米系小部件的身份标识（堆叠放行的钥匙）。
-            4) miuiWidgetRefresh / miuiWidgetRefreshMinInterval 是曝光刷新配置。
-            5) android:process=":widgetProvider" 独立进程（米系小部件都这么放）。
-
-            实测（澎湃 OS 4.0 V816，2026-09-17）：补齐上面 5 条之后，
-            两个实例真的能叠成一组（桌面日志 stackWidget done: widgetCount=2）。
+            原因见 README「澎湃 OS 4 堆叠」一节：这两件事在澎湃 OS 上是互斥的，
+            所以要同一个包名出两个 APK，互相覆盖安装来切换。
         -->
-        <receiver
-            android:name=".DualAppWidgetProvider"
-            android:exported="true"
-            android:label="@string/widget_label"
-            android:process=":widgetProvider">
-            <intent-filter>
-                <!-- 系统定时/常规刷新 -->
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <!-- 米系小部件的刷新广播（桌面据此把 provider 认成米系小部件） -->
-                <action android:name="miui.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/dual_app_widget_info" />
-
-            <!-- 米系小部件身份标识 -->
-            <meta-data
-                android:name="miuiWidget"
-                android:value="true" />
-
-            <!-- 曝光刷新：页面滑到小部件时刷新一次 -->
-            <meta-data
-                android:name="miuiWidgetRefresh"
-                android:value="exposure" />
-            <meta-data
-                android:name="miuiWidgetRefreshMinInterval"
-                android:value="60000" />
-        </receiver>
 
         <!--
             实例管理页：应用启动入口。
